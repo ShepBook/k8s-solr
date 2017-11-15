@@ -7,6 +7,56 @@ K8s - Solr (CRD)
 
 Provides a Custom Resource Definition for deploying and discovering Solr cores.
 
+![Diagram](/docs/diagram.png "Diagram")
+
+## Example
+
+**Ask for a Solr instance**
+
+`kubectl create -f solr.yaml`
+
+```yaml
+apiVersion: skpr.io/v1
+kind: Solr
+metadata:
+  name: dev
+  namespace: testing
+spec:
+  size: small
+```
+
+**Get a list of Solr instances**
+
+```bash
+kubectl -n testing get solrs
+NAME      AGE
+dev       22s
+```
+
+**Check the Deployments**
+
+```bash
+kubectl -n testing get deployments
+NAME       DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+solr-dev   1         0         0            0           28s
+```
+
+**Check the PersistentVolumeClaims**
+
+```bash
+kubectl -n testing get pvc
+NAME       STATUS    VOLUME    CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+solr-dev   Pending                                       solr           39s
+```
+
+**Check the Service**
+
+```bash
+kubectl -n testing get svc
+NAME       TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+solr-dev   ClusterIP   242.0.121.157   <none>        8983/TCP   9m
+```
+
 ## Development
 
 ### Getting started
@@ -22,10 +72,10 @@ To get a checkout of the project run the following commands:
 mkdir -p $GOPATH/src/github.com/previousnext
 
 # Checkout the codebase.
-git clone git@github.com:previousnext/gopher $GOPATH/src/github.com/previousnext/gopher
+git clone git@github.com:previousnext/k8s-solr $GOPATH/src/github.com/previousnext/k8s-solr
 
 # Change into the project to run workflow commands.
-cd $GOPATH/src/github.com/previousnext/gopher
+cd $GOPATH/src/github.com/previousnext/k8s-solr
 ```
 
 ### Documentation

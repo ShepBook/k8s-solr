@@ -10,6 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/log"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 	"k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	apiextcs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -24,8 +25,17 @@ import (
 	"github.com/previousnext/k8s-solr/k8s"
 )
 
+var (
+	cliNamespace  = kingpin.Flag("namespace", "Which namespace to operate in.").Default(v1.NamespaceAll).Envar("K8S_NAMESPACE").String()
+	cliKubernetes = kingpin.Flag("kubernetes", "Kubernetes apiserver endpoint (for local development)").String()
+)
+
 func main() {
-	config, err := rest.InClusterConfig()
+	kingpin.Parse()
+
+	log.Info("Starting Solr Controller")
+
+	config, err := getConnection(*cliKubernetes)
 	if err != nil {
 		panic(err)
 	}
@@ -34,6 +44,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	log.Infof("Installing %s", crd.FullCRDName)
 
 	err = crd.Create(clientset)
 	if err != nil {
@@ -50,7 +62,9 @@ func main() {
 		panic(err)
 	}
 
-	crdclient := client.New(crdcs, scheme, "default")
+	crdclient := client.New(crdcs, scheme, *cliNamespace)
+
+	log.Infof("Watching %s for changes", crd.FullCRDName)
 
 	// Watch the Kubernetes API for changes to our CRD.
 	_, controller := cache.NewInformer(
@@ -59,17 +73,29 @@ func main() {
 		time.Minute*10,
 		cache.ResourceEventHandlerFuncs{
 			AddFunc: func(obj interface{}) {
-				if err := sync(k8sclient, obj.(*crd.Solr)); err != nil {
+				solr := obj.(*crd.Solr)
+
+				log.Infof("Solr core %s/%s was added", solr.ObjectMeta.Namespace, solr.ObjectMeta.Name)
+
+				if err := sync(k8sclient, solr); err != nil {
 					log.Errorf("failed to create Solr: %s", err)
 				}
 			},
 			UpdateFunc: func(oldObj, newObj interface{}) {
-				if err := sync(k8sclient, newObj.(*crd.Solr)); err != nil {
+				solr := newObj.(*crd.Solr)
+
+				log.Infof("Solr core %s/%s was updated", solr.ObjectMeta.Namespace, solr.ObjectMeta.Name)
+
+				if err := sync(k8sclient, solr); err != nil {
 					log.Errorf("failed to update Solr: %s", err)
 				}
 			},
 			DeleteFunc: func(obj interface{}) {
-				if err := delete(k8sclient, obj.(*crd.Solr)); err != nil {
+				solr := obj.(*crd.Solr)
+
+				log.Infof("Solr core %s/%s was deleted", solr.ObjectMeta.Namespace, solr.ObjectMeta.Name)
+
+				if err := delete(k8sclient, solr); err != nil {
 					log.Errorf("failed to delete Solr: %s", err)
 				}
 			},
@@ -85,6 +111,17 @@ func main() {
 
 	log.Info("Shutdown signal received, exiting...")
 	close(stop)
+}
+
+// Helper function to get a Kubernetes API config.
+func getConnection(host string) (*rest.Config, error) {
+	if host != "" {
+		return &rest.Config{
+			Host: host,
+		}, nil
+	}
+
+	return rest.InClusterConfig()
 }
 
 // Helper function create or update a Solr deployment.
