@@ -12,13 +12,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-const (
-	// Port for Solr to respond on.
-	Port = 8983
-	// Core which stores data.
-	Core = "core1"
-)
-
 // Deployment will marshal the Solr object into a Kubernetes Deployment.
 func Deployment(solr *crd.Solr) (*v1beta1.Deployment, error) {
 	var (
@@ -27,7 +20,12 @@ func Deployment(solr *crd.Solr) (*v1beta1.Deployment, error) {
 		history  = int32(2)
 	)
 
-	cpu, mem, err := sizeToResource(solr.Spec.Size)
+	// We default all our Solr cores to 5.x
+	if solr.Spec.Version == "" {
+		solr.Spec.Version = crd.SolrVersion5
+	}
+
+	cpuMin, cpuMax, mem, heap, err := sizeToResource(solr.Spec.Size)
 	if err != nil {
 		return nil, err
 	}
@@ -42,22 +40,38 @@ func Deployment(solr *crd.Solr) (*v1beta1.Deployment, error) {
 			RevisionHistoryLimit: &history,
 			Selector: &meta_v1.LabelSelector{
 				MatchLabels: map[string]string{
-					"addon": name,
+					"solr": solr.ObjectMeta.Name,
 				},
 			},
 			Template: v1.PodTemplateSpec{
 				ObjectMeta: meta_v1.ObjectMeta{
 					Name: name,
 					Labels: map[string]string{
-						"addon": name,
+						"solr": solr.ObjectMeta.Name,
 					},
 					Namespace: solr.ObjectMeta.Namespace,
 				},
 				Spec: v1.PodSpec{
+					InitContainers: []v1.Container{
+						// Our Solr containers run as the user "solr".
+						// This container will ensure that the permissions are set.
+						// Otherwise Solr will fail to boot in the first instance.
+						v1.Container{
+							Name:            "permissions",
+							Image:           fmt.Sprintf("%s:init", Repository),
+							ImagePullPolicy: "Always",
+							Command: []string{
+								"chown",
+								"-R",
+								"solr:solr",
+								Data,
+							},
+						},
+					},
 					Containers: []v1.Container{
 						v1.Container{
 							Name:  "solr",
-							Image: fmt.Sprintf("previousnext/solr:%s", solr.Spec.Version),
+							Image: fmt.Sprintf("%s:%s", Repository, solr.Spec.Version),
 							Ports: []v1.ContainerPort{
 								v1.ContainerPort{
 									ContainerPort: int32(Port),
@@ -66,7 +80,7 @@ func Deployment(solr *crd.Solr) (*v1beta1.Deployment, error) {
 							Env: []v1.EnvVar{
 								v1.EnvVar{
 									Name:  "SOLR_HEAP",
-									Value: fmt.Sprintf("%dm", mem.Value()),
+									Value: heap,
 								},
 								v1.EnvVar{
 									Name:  "SOLR_CORE",
@@ -85,18 +99,18 @@ func Deployment(solr *crd.Solr) (*v1beta1.Deployment, error) {
 							},
 							Resources: v1.ResourceRequirements{
 								Requests: v1.ResourceList{
-									v1.ResourceCPU:    cpu,
+									v1.ResourceCPU:    cpuMin,
 									v1.ResourceMemory: mem,
 								},
 								Limits: v1.ResourceList{
-									v1.ResourceCPU:    cpu,
+									v1.ResourceCPU:    cpuMax,
 									v1.ResourceMemory: mem,
 								},
 							},
 							VolumeMounts: []v1.VolumeMount{
 								v1.VolumeMount{
 									Name:      "data",
-									MountPath: "/opt/solr/data",
+									MountPath: Data,
 								},
 							},
 							ImagePullPolicy: "Always",
@@ -121,18 +135,18 @@ func Deployment(solr *crd.Solr) (*v1beta1.Deployment, error) {
 }
 
 // Helper function to get sizing for the Solr deployment.
-func sizeToResource(size crd.SolrSpecSize) (resource.Quantity, resource.Quantity, error) {
+func sizeToResource(size crd.SolrSpecSize) (resource.Quantity, resource.Quantity, resource.Quantity, string, error) {
 	if size == crd.SolrSpecSizeSmall {
-		return resource.MustParse("100m"), resource.MustParse("256Mi"), nil
+		return resource.MustParse("100m"), resource.MustParse("1000m"), resource.MustParse("256Mi"), "256m", nil
 	}
 
 	if size == crd.SolrSpecSizeSmall {
-		return resource.MustParse("500m"), resource.MustParse("512Mi"), nil
+		return resource.MustParse("500m"), resource.MustParse("1000m"), resource.MustParse("512Mi"), "512m", nil
 	}
 
 	if size == crd.SolrSpecSizeSmall {
-		return resource.MustParse("1000m"), resource.MustParse("1024Mi"), nil
+		return resource.MustParse("1000m"), resource.MustParse("2000m"), resource.MustParse("1024Mi"), "1024m", nil
 	}
 
-	return resource.MustParse("100m"), resource.MustParse("256Mi"), errors.New("cannot find size")
+	return resource.MustParse("100m"), resource.MustParse("1000m"), resource.MustParse("256Mi"), "256m", errors.New("cannot find size")
 }

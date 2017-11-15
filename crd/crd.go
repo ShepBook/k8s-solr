@@ -79,6 +79,14 @@ type Solr struct {
 	Spec               SolrSpec `json:"spec"`
 }
 
+// SolrVersion is used to ensure that the user provide a valid Solr version.
+type SolrVersion string
+
+const (
+	// SolrVersion5 relates to Solr 5.x
+	SolrVersion5 SolrVersion = "5.x"
+)
+
 // SolrSpecSize allows us to specify instance sizing in a simple format.
 type SolrSpecSize string
 
@@ -93,7 +101,7 @@ const (
 
 // SolrSpec is what we are provisioning.
 type SolrSpec struct {
-	Version   string       `json:"version"`
+	Version   SolrVersion  `json:"version"`
 	ConfigMap string       `json:"configMap"`
 	Size      SolrSpecSize `json:"size"`
 }
