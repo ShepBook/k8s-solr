@@ -70,7 +70,7 @@ func TestIngress(t *testing.T) {
 					Containers: []v1.Container{
 						v1.Container{
 							Name:  "solr",
-							Image: fmt.Sprintf("ShepBook/solr:5.x"),
+							Image: fmt.Sprintf("ShepBook/solr:7.3"),
 							Ports: []v1.ContainerPort{
 								v1.ContainerPort{
 									ContainerPort: int32(Port),

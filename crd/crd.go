@@ -83,8 +83,8 @@ type Solr struct {
 type SolrVersion string
 
 const (
-	// SolrVersion5 relates to Solr 5.x
-	SolrVersion5 SolrVersion = "5.x"
+	// SolrVersion7 relates to Solr 7.3
+	SolrVersion7 SolrVersion = "7.3"
 )
 
 // SolrSpecSize allows us to specify instance sizing in a simple format.

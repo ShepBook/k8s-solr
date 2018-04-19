@@ -20,9 +20,9 @@ func Deployment(solr *crd.Solr) (*v1beta1.Deployment, error) {
 		history  = int32(2)
 	)
 
-	// We default all our Solr cores to 5.x
+	// We default all our Solr cores to 7.3
 	if solr.Spec.Version == "" {
-		solr.Spec.Version = crd.SolrVersion5
+		solr.Spec.Version = crd.SolrVersion7
 	}
 
 	cpuMin, cpuMax, mem, heap, err := sizeToResource(solr.Spec.Size)
