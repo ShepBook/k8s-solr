@@ -1,7 +1,7 @@
 K8s - Solr (CRD)
 ================
 
-**Maintainer**: Nick Schuch
+**Maintainer**: Jared Koumentis
 
 Provides a Custom Resource Definition for deploying and discovering Solr cores.
 
