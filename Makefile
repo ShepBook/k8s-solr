@@ -18,7 +18,7 @@ test:
 	go test -cover ./crd/...
 	go test -cover ./k8s/...
 
-IMAGE=ShepBook/k8s-solr
+IMAGE=shepbook/k8s-solr
 VERSION=$(shell git describe --tags --always)
 
 release: release-docker release-github
@@ -29,3 +29,7 @@ release-docker:
 	docker push ${IMAGE}:${VERSION}
 	docker build -t ${IMAGE}:latest .
 	docker push ${IMAGE}:latest
+
+build-docker:
+	docker build -t ${IMAGE}:${VERSION} .
+	docker build -t ${IMAGE}:latest .
