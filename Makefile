@@ -2,7 +2,7 @@
 
 export CGO_ENABLED=0
 
-PROJECT=github.com/previousnext/k8s-solr
+PROJECT=github.com/ShepBook/k8s-solr
 
 # Builds the project
 build:
@@ -18,7 +18,7 @@ test:
 	go test -cover ./crd/...
 	go test -cover ./k8s/...
 
-IMAGE=previousnext/k8s-solr
+IMAGE=ShepBook/k8s-solr
 VERSION=$(shell git describe --tags --always)
 
 release: release-docker release-github
@@ -29,7 +29,3 @@ release-docker:
 	docker push ${IMAGE}:${VERSION}
 	docker build -t ${IMAGE}:latest .
 	docker push ${IMAGE}:latest
-
-# Release the project to Github.
-release-github: build
-	ghr -u previousnext "${VERSION}" ./bin/

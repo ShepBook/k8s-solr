@@ -1,5 +1,5 @@
-FROM        solr:5.5
-MAINTAINER  Nick Schuch <nick@previousnext.com.au>
+FROM        solr:7.3
+MAINTAINER  Jared Koumentis <jared@koumentis.com>
 
 ENV SOLR_HEAP="256m"
 ENV SOLR_CORE="core1"

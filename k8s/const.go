@@ -6,5 +6,5 @@ const (
 	// Core which stores data.
 	Core       = "core1"
 	Data       = "/opt/solr/data"
-	Repository = "previousnext/solr"
+	Repository = "ShepBook/solr"
 )

@@ -1,8 +1,6 @@
 K8s - Solr (CRD)
 ================
 
-[![CircleCI](https://circleci.com/gh/previousnext/k8s-solr.svg?style=svg)](https://circleci.com/gh/previousnext/k8s-solr)
-
 **Maintainer**: Nick Schuch
 
 Provides a Custom Resource Definition for deploying and discovering Solr cores.
@@ -69,13 +67,13 @@ To get a checkout of the project run the following commands:
 
 ```bash
 # Make sure the parent directories exist.
-mkdir -p $GOPATH/src/github.com/previousnext
+mkdir -p $GOPATH/src/github.com/ShepBook
 
 # Checkout the codebase.
-git clone git@github.com:previousnext/k8s-solr $GOPATH/src/github.com/previousnext/k8s-solr
+git clone git@github.com:ShepBook/k8s-solr $GOPATH/src/github.com/ShepBook/k8s-solr
 
 # Change into the project to run workflow commands.
-cd $GOPATH/src/github.com/previousnext/k8s-solr
+cd $GOPATH/src/github.com/ShepBook/k8s-solr
 ```
 
 ### Documentation

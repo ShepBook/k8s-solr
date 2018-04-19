@@ -1,11 +1,11 @@
 #!/usr/bin/make -f
 
-IMAGE=previousnext/solr
+IMAGE=ShepBook/solr
 
 cores:
 	docker build -t $(IMAGE):init init
-	docker build -t $(IMAGE):5.x 5.x
+	docker build -t $(IMAGE):7.3 7.3
 
 release: cores
 	docker push $(IMAGE):init
-	docker push $(IMAGE):5.x
+	docker push $(IMAGE):7.3

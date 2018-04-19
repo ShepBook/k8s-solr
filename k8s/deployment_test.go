@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/previousnext/k8s-solr/crd"
+	"github.com/ShepBook/k8s-solr/crd"
 	"github.com/stretchr/testify/assert"
 	"k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
@@ -57,7 +57,7 @@ func TestIngress(t *testing.T) {
 					InitContainers: []v1.Container{
 						v1.Container{
 							Name:            "permissions",
-							Image:           "previousnext/solr:init",
+							Image:           "ShepBook/solr:init",
 							ImagePullPolicy: "Always",
 							Command: []string{
 								"chown",
@@ -70,7 +70,7 @@ func TestIngress(t *testing.T) {
 					Containers: []v1.Container{
 						v1.Container{
 							Name:  "solr",
-							Image: fmt.Sprintf("previousnext/solr:5.x"),
+							Image: fmt.Sprintf("ShepBook/solr:5.x"),
 							Ports: []v1.ContainerPort{
 								v1.ContainerPort{
 									ContainerPort: int32(Port),

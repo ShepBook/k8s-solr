@@ -20,9 +20,9 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 
-	"github.com/previousnext/k8s-solr/client"
-	"github.com/previousnext/k8s-solr/crd"
-	"github.com/previousnext/k8s-solr/k8s"
+	"github.com/ShepBook/k8s-solr/client"
+	"github.com/ShepBook/k8s-solr/crd"
+	"github.com/ShepBook/k8s-solr/k8s"
 )
 
 var (

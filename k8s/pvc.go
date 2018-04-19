@@ -1,7 +1,7 @@
 package k8s
 
 import (
-	"github.com/previousnext/k8s-solr/crd"
+	"github.com/ShepBook/k8s-solr/crd"
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"

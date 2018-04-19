@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/previousnext/k8s-solr/crd"
+	"github.com/ShepBook/k8s-solr/crd"
 	"k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/resource"

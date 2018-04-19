@@ -7,7 +7,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 
-	"github.com/previousnext/k8s-solr/crd"
+	"github.com/ShepBook/k8s-solr/crd"
 )
 
 func New(cl *rest.RESTClient, scheme *runtime.Scheme, namespace string) *crdclient {
